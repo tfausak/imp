@@ -1,0 +1,75 @@
+cabal-version: 2.2
+name: imp
+version: 0.2024.3.11
+synopsis: Automatically import modules.
+description:
+  Imp is a GHC plugin that automatically imports modules when they are used,
+  like GHCi does. This allows writing code using qualified identifiers without
+  manually importing the modules.
+
+category: Plugin
+maintainer: Taylor Fausak
+license: MIT
+license-file: LICENSE.txt
+extra-doc-files:
+  CHANGELOG.md
+  README.md
+
+source-repository head
+  location: https://github.com/tfausak/imp
+  type: git
+
+common library
+  build-depends: base ^>=4.17.0.0 || ^>=4.18.0.0 || ^>=4.19.0.0
+  default-language: Haskell2010
+  ghc-options:
+    -Weverything
+    -Wno-all-missed-specialisations
+    -Wno-implicit-prelude
+    -Wno-missed-specialisations
+    -Wno-missing-deriving-strategies
+    -Wno-missing-export-lists
+    -Wno-missing-kind-signatures
+    -Wno-missing-safe-haskell-mode
+    -Wno-prepositive-qualified-module
+    -Wno-safe
+    -Wno-unsafe
+
+library
+  import: library
+  autogen-modules: Paths_imp
+  build-depends:
+    containers ^>=0.6.7,
+    exceptions ^>=0.10.5,
+    ghc ^>=9.4.1 || ^>=9.6.1 || ^>=9.8.1,
+
+  exposed-modules: Imp.Ghc
+  -- cabal-gild: discover source/library
+  exposed-modules:
+    Imp
+    Imp.Exception.InvalidAlias
+    Imp.Exception.InvalidModuleName
+    Imp.Exception.InvalidOption
+    Imp.Exception.ShowHelp
+    Imp.Exception.ShowVersion
+    Imp.Exception.UnexpectedArgument
+    Imp.Exception.UnknownOption
+    Imp.Extra.Exception
+    Imp.Extra.HsModule
+    Imp.Extra.HsParsedModule
+    Imp.Extra.ImportDecl
+    Imp.Extra.ModuleName
+    Imp.Extra.ParsedResult
+    Imp.Extra.ReadP
+    Imp.Type.Alias
+    Imp.Type.Config
+    Imp.Type.Context
+    Imp.Type.Flag
+
+  hs-source-dirs: source/library
+  other-modules: Paths_imp
+
+  if impl(ghc >= 9.6)
+    hs-source-dirs: source/ghc-9.6
+  else
+    hs-source-dirs: source/ghc-9.4
