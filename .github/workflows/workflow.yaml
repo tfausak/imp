@@ -184,7 +184,13 @@
           }
         },
         {
+          "run": "tar --extract --file artifact.tar"
+        },
+        {
           "run": "ls -l"
+        },
+        {
+          "run": "ls -l *"
         }
       ]
     }
