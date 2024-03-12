@@ -173,31 +173,18 @@
       ]
     },
     "release": {
-      "env": {
-        "PREFIX": "imp-${{ github.event.release.tag_name }}"
-      },
-      "if": "${{ github.event_name == 'release' }}",
       "name": "Release",
       "needs": "build",
       "runs-on": "ubuntu-22.04",
       "steps": [
         {
-          "uses": "actions/download-artifact@v4"
-        },
-        {
-          "run": "sh -exc 'for d in *; do cd $d; tar --extract --file artifact.tar --verbose; cd ..; done'"
-        },
-        {
-          "run": "cp imp-${{ github.sha }}-ubuntu-22.04-9.8/artifact/${{ env.PREFIX }}.tar.gz ."
-        },
-        {
-          "uses": "softprops/action-gh-release@v1",
+          "uses": "actions/download-artifact@v4",
           "with": {
-            "files": "${{ env.PREFIX }}*.tar.gz"
+            "name": "imp-${{ github.sha }}-ubuntu-22.04-9.8"
           }
         },
         {
-          "run": "cabal upload --publish --username '${{ secrets.HACKAGE_USERNAME }}' --password '${{ secrets.HACKAGE_PASSWORD }}' ${{ env.PREFIX }}.tar.gz"
+          "run": "ls -l"
         }
       ]
     }
