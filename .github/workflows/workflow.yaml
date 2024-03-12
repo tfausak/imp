@@ -72,36 +72,36 @@
       "strategy": {
         "matrix": {
           "include": [
-            # {
-            #   "ghc": "9.8",
-            #   "platform": "macos",
-            #   "version": 13
-            # },
-            # {
-            #   "ghc": "9.8",
-            #   "platform": "macos",
-            #   "version": 14
-            # },
-            # {
-            #   "ghc": "9.4",
-            #   "platform": "ubuntu",
-            #   "version": 22.04
-            # },
-            # {
-            #   "ghc": "9.6",
-            #   "platform": "ubuntu",
-            #   "version": 22.04
-            # },
+            {
+              "ghc": "9.8",
+              "platform": "macos",
+              "version": 13
+            },
+            {
+              "ghc": "9.8",
+              "platform": "macos",
+              "version": 14
+            },
+            {
+              "ghc": "9.4",
+              "platform": "ubuntu",
+              "version": 22.04
+            },
+            {
+              "ghc": "9.6",
+              "platform": "ubuntu",
+              "version": 22.04
+            },
             {
               "ghc": "9.8",
               "platform": "ubuntu",
               "version": 22.04
             },
-            # {
-            #   "ghc": "9.8",
-            #   "platform": "windows",
-            #   "version": 2022
-            # }
+            {
+              "ghc": "9.8",
+              "platform": "windows",
+              "version": 2022
+            }
           ]
         }
       }
@@ -173,6 +173,7 @@
       ]
     },
     "release": {
+      "if": "${{ github.event_name == 'release' }}",
       "name": "Release",
       "needs": "build",
       "runs-on": "ubuntu-22.04",
@@ -187,10 +188,13 @@
           "run": "tar --extract --file artifact.tar"
         },
         {
-          "run": "ls -l"
+          "uses": "softprops/action-gh-release@v1",
+          "with": {
+            "files": "artifact/imp-*.tar.gz"
+          }
         },
         {
-          "run": "ls -l *"
+          "run": "cabal upload --publish --username '${{ secrets.HACKAGE_USERNAME }}' --password '${{ secrets.HACKAGE_PASSWORD }}' artifact/imp-*.tar.gz"
         }
       ]
     }
