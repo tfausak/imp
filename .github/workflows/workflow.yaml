@@ -21,7 +21,7 @@
           "run": "cabal sdist --output-dir artifact"
         },
         {
-          "run": "cabal configure --enable-optimization=2 --enable-tests --flags=pedantic --jobs"
+          "run": "cabal configure --enable-optimization=2 --enable-tests --flags=pedantic --jobs --test-show-details=direct"
         },
         {
           "run": "cat cabal.project.local"
@@ -67,6 +67,9 @@
             "name": "imp-${{ github.sha }}-${{ matrix.platform }}-${{ matrix.version }}-${{ matrix.ghc }}",
             "path": "artifact.tar"
           }
+        },
+        {
+          "run": "cabal test"
         }
       ],
       "strategy": {
