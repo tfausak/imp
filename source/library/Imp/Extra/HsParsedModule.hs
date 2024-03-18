@@ -5,7 +5,8 @@ import qualified GHC.Plugins as Plugin
 import qualified Imp.Ghc as Ghc
 
 overModule ::
-  (Plugin.Located Ghc.HsModulePs -> Plugin.Located Ghc.HsModulePs) ->
+  (Functor f) =>
+  (Plugin.Located Ghc.HsModulePs -> f (Plugin.Located Ghc.HsModulePs)) ->
   Plugin.HsParsedModule ->
-  Plugin.HsParsedModule
-overModule f x = x {Hs.hpm_module = f $ Hs.hpm_module x}
+  f Plugin.HsParsedModule
+overModule f x = (\y -> x {Hs.hpm_module = y}) <$> f (Hs.hpm_module x)

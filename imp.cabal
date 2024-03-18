@@ -1,6 +1,6 @@
 cabal-version: 2.2
 name: imp
-version: 0.2024.3.11
+version: 0.2024.3.18
 synopsis: Automatically import modules.
 description:
   Imp is a GHC plugin that automatically imports modules when they are used,
@@ -34,6 +34,13 @@ common library
     -Wno-prepositive-qualified-module
     -Wno-safe
     -Wno-unsafe
+
+common executable
+  import: library
+  build-depends: imp
+  ghc-options:
+    -rtsopts
+    -threaded
 
 library
   import: library
@@ -73,3 +80,14 @@ library
     hs-source-dirs: source/ghc-9.6
   else
     hs-source-dirs: source/ghc-9.4
+
+test-suite imp-test-suite
+  import: executable
+  build-depends:
+    exceptions,
+    ghc,
+    hspec ^>=2.11.7,
+
+  hs-source-dirs: source/test-suite
+  main-is: Main.hs
+  type: exitcode-stdio-1.0
