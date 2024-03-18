@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 import qualified Control.Monad.Catch as Exception
 import qualified GHC.Data.EnumSet as EnumSet
 import qualified GHC.Data.FastString as FastString
@@ -89,7 +91,7 @@ expectImp arguments input expected = do
 
 parseModule :: (Exception.MonadThrow m) => String -> m (SrcLoc.Located Ghc.HsModulePs)
 parseModule input = do
-  let parserOpts = Lexer.mkParserOpts EnumSet.empty Error.emptyDiagOpts [] False False False False
+  let parserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts [] False False False False
       stringBuffer = StringBuffer.stringToStringBuffer input
       realSrcLoc = SrcLoc.mkRealSrcLoc (FastString.mkFastString "<interactive>") 1 1
       pState = Lexer.initParserState parserOpts stringBuffer realSrcLoc
@@ -97,6 +99,13 @@ parseModule input = do
   case parseResult of
     Lexer.PFailed _ -> Exception.throwM $ InvalidInput input
     Lexer.POk _ lHsModule -> pure lHsModule
+
+emptyDiagOpts :: Error.DiagOpts
+#if MIN_VERSION_ghc(9, 8, 1)
+emptyDiagOpts = Error.emptyDiagOpts
+#else
+emptyDiagOpts = Error.DiagOpts EnumSet.empty EnumSet.empty False False Nothing Outputable.defaultSDocContext
+#endif
 
 newtype InvalidInput
   = InvalidInput String
