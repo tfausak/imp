@@ -3,7 +3,8 @@ module Imp.Extra.ParsedResult where
 import qualified GHC.Plugins as Plugin
 
 overModule ::
-  (Plugin.HsParsedModule -> Plugin.HsParsedModule) ->
+  (Functor f) =>
+  (Plugin.HsParsedModule -> f Plugin.HsParsedModule) ->
   Plugin.ParsedResult ->
-  Plugin.ParsedResult
-overModule f x = x {Plugin.parsedResultModule = f $ Plugin.parsedResultModule x}
+  f Plugin.ParsedResult
+overModule f x = (\y -> x {Plugin.parsedResultModule = y}) <$> f (Plugin.parsedResultModule x)

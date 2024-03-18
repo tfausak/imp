@@ -34,12 +34,10 @@ parsedResultAction ::
   modSummary ->
   Plugin.ParsedResult ->
   Plugin.Hsc Plugin.ParsedResult
-parsedResultAction commandLineOptions _ parsedResult =
-  Plugin.liftIO . Exception.handle handleException $ do
-    flags <- Flag.fromArguments commandLineOptions
-    config <- Config.fromFlags flags
-    context <- Context.fromConfig config
-    pure $ ParsedResult.overModule (HsParsedModule.overModule $ imp context) parsedResult
+parsedResultAction commandLineOptions _ =
+  Plugin.liftIO
+    . Exception.handle handleException
+    . ParsedResult.overModule (HsParsedModule.overModule $ imp commandLineOptions)
 
 handleException :: Exception.SomeException -> IO a
 handleException e = do
@@ -53,17 +51,24 @@ exceptionToExitCode e
   | otherwise = Exit.ExitFailure 1
 
 imp ::
-  Context.Context ->
+  (Exception.MonadThrow m) =>
+  [String] ->
   Plugin.Located Ghc.HsModulePs ->
-  Plugin.Located Ghc.HsModulePs
-imp context lHsModule =
+  m (Plugin.Located Ghc.HsModulePs)
+imp arguments lHsModule = do
+  flags <- Flag.fromArguments arguments
+  config <- Config.fromFlags flags
+  context <- Context.fromConfig config
   let aliases = Context.aliases context
-      moduleNames = Set.fromList $ biplate lHsModule :: Set.Set Plugin.ModuleName
-   in fmap (HsModule.overImports $ updateImports aliases moduleNames) lHsModule
+      moduleNames =
+        Set.fromList @Plugin.ModuleName
+          . biplate
+          . Hs.hsmodDecls
+          $ Plugin.unLoc lHsModule
+  pure $ fmap (HsModule.overImports $ updateImports aliases moduleNames) lHsModule
 
 biplate :: (Data.Data a, Data.Data b) => a -> [b]
-biplate =
-  concat . Data.gmapQ (\d -> maybe (biplate d) pure $ Data.cast d)
+biplate = concat . Data.gmapQ (\d -> maybe (biplate d) pure $ Data.cast d)
 
 updateImports ::
   Map.Map Plugin.ModuleName Plugin.ModuleName ->
@@ -81,4 +86,9 @@ createImport ::
   Hs.ImportDecl Hs.GhcPs
 createImport aliases target =
   let source = Map.findWithDefault target target aliases
-   in (Ghc.newImportDecl source) {Hs.ideclAs = Just $ Hs.noLocA target}
+   in (Ghc.newImportDecl source)
+        { Hs.ideclAs =
+            if source == target
+              then Nothing
+              else Just $ Hs.noLocA target
+        }
