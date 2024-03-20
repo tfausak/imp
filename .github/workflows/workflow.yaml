@@ -179,6 +179,9 @@
       "if": "${{ github.event_name == 'release' }}",
       "name": "Release",
       "needs": "build",
+      "permissions": {
+        "contents": "write"
+      },
       "runs-on": "ubuntu-22.04",
       "steps": [
         {
