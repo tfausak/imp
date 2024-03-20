@@ -15,7 +15,7 @@ newImportDecl moduleName =
         Hs.XImportDeclPass
           { Hs.ideclAnn = Hs.noAnn,
             Hs.ideclSourceText = SourceText.NoSourceText,
-            Hs.ideclImplicit = False
+            Hs.ideclImplicit = True
           },
       Hs.ideclName = Hs.noLocA moduleName,
       Hs.ideclPkgQual = Plugin.NoRawPkgQual,
