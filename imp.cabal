@@ -1,6 +1,6 @@
 cabal-version: 2.2
 name: imp
-version: 0.2024.3.20
+version: 0.2024.3.20.1
 synopsis: Automatically import modules.
 description:
   Imp is a GHC plugin that automatically imports modules when they are used,
