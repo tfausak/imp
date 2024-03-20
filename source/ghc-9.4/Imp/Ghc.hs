@@ -13,7 +13,7 @@ newImportDecl moduleName =
   Hs.ImportDecl
     { Hs.ideclExt = Hs.noAnn,
       Hs.ideclSourceSrc = SourceText.NoSourceText,
-      Hs.ideclImplicit = False,
+      Hs.ideclImplicit = True,
       Hs.ideclName = Hs.noLocA moduleName,
       Hs.ideclPkgQual = Plugin.NoRawPkgQual,
       Hs.ideclSource = Plugin.NotBoot,
