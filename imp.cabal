@@ -1,12 +1,8 @@
 cabal-version: 2.2
 name: imp
-version: 0.2024.3.20.1
-synopsis: Automatically import modules.
-description:
-  Imp is a GHC plugin that automatically imports modules when they are used,
-  like GHCi does. This allows writing code using qualified identifiers without
-  manually importing the modules.
-
+version: 0.2024.3.21
+synopsis: A GHC plugin for automatically importing modules.
+description: Imp is a GHC plugin for automatically importing modules.
 category: Plugin
 maintainer: Taylor Fausak
 license: MIT
@@ -54,8 +50,7 @@ library
     exceptions ^>=0.10.5,
     ghc ^>=9.4.1 || ^>=9.6.1 || ^>=9.8.1,
 
-  exposed-modules: Imp.Ghc
-  -- cabal-gild: discover source/library
+  -- cabal-gild: discover source/ghc-9.4 source/ghc-9.6 source/library
   exposed-modules:
     Imp
     Imp.Exception.InvalidAlias
@@ -72,6 +67,7 @@ library
     Imp.Extra.ModuleName
     Imp.Extra.ParsedResult
     Imp.Extra.ReadP
+    Imp.Ghc
     Imp.Type.Alias
     Imp.Type.Config
     Imp.Type.Context
