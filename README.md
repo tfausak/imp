@@ -11,6 +11,11 @@ modules.
 
 [1]: https://downloads.haskell.org/ghc/9.8.2/docs/users_guide/ghci.html#qualified-names
 
+This is similar to [qualified-imports-plugin][2], but it works differently
+behind the scenes and supports newer versions of GHC.
+
+[2]: https://github.com/utdemir/qualified-imports-plugin
+
 ## Basic Usage
 
 To use Imp, add it to your package's `build-depends`, like this:
