@@ -75,6 +75,23 @@ main = IO.print ()
 
 Later aliases will override earlier ones.
 
+## Recommended Usage
+
+Combining the previous sections, the recommended usage of Imp is to enable it
+in your package description (`*.cabal` file) along with any aliases that you
+want in your project. For example:
+
+``` cabal
+library
+  build-depends: imp ^>= 1.0.0.0
+  ghc-options:
+    -fplugin=Imp
+    -fplugin-opt=Imp:--alias=Data.Map.Strict:Map
+    -fplugin-opt=Imp:--alias=Data.Sequence:Seq
+    -fplugin-opt=Imp:--alias=Data.Set:Set
+    -- and so on ...
+```
+
 ## Notes
 
 Imp operates purely syntactically. It doesn't know anything about the
