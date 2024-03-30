@@ -95,6 +95,12 @@ main = Hspec.hspec . Hspec.parallel . Hspec.describe "Imp" $ do
       "import Data.Bool\ntrue = Data.Bool.True"
       "import Data.Bool\ntrue = Data.Bool.True"
 
+  Hspec.it "does not insert an import for the current module" $ do
+    expectImp
+      []
+      "undefined = Example.undefined"
+      "undefined = Example.undefined"
+
 expectImp :: (Stack.HasCallStack) => [String] -> String -> String -> Hspec.Expectation
 expectImp arguments input expected = do
   before <- parseModule input

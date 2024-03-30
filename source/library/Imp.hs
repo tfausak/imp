@@ -86,7 +86,7 @@ imp arguments this lHsModule = do
         StateT.runState
           (Located.overValue (HsModule.overDecls $ overData $ updateQualifiedIdentifiers this implicits imports) lHsModule)
           Map.empty
-  pure $ fmap (HsModule.overImports $ updateImports aliases moduleNames) newLHsModule
+  pure $ fmap (HsModule.overImports $ updateImports this aliases moduleNames) newLHsModule
 
 updateQualifiedIdentifiers ::
   (Data.Data a) =>
@@ -119,12 +119,13 @@ overData :: (Data.Data a, Monad m) => (forall b. (Data.Data b) => b -> m b) -> a
 overData f = Data.gmapM $ overData f Monad.>=> f
 
 updateImports ::
+  Plugin.ModuleName ->
   Map.Map Target.Target Source.Source ->
   Map.Map Plugin.ModuleName Hs.SrcSpanAnnN ->
   [Hs.LImportDecl Hs.GhcPs] ->
   [Hs.LImportDecl Hs.GhcPs]
-updateImports aliases want imports =
-  let have = Set.fromList $ fmap (ImportDecl.toModuleName . Plugin.unLoc) imports
+updateImports this aliases want imports =
+  let have = Set.insert this . Set.fromList $ fmap (ImportDecl.toModuleName . Plugin.unLoc) imports
       need = Map.toList $ Map.withoutKeys want have
    in imports <> Maybe.mapMaybe (\(m, l) -> Plugin.L (Hs.na2la l) <$> createImport aliases m) need
 
