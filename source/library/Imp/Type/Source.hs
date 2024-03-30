@@ -17,3 +17,8 @@ fromString s =
   if s == "_"
     then pure Implicit
     else fromModuleName <$> ModuleName.fromString s
+
+isImplicit :: Source -> Bool
+isImplicit s = case s of
+  Implicit -> True
+  Explicit _ -> False
