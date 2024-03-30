@@ -49,6 +49,7 @@ library
     containers ^>=0.6.7,
     exceptions ^>=0.10.5,
     ghc ^>=9.4.1 || ^>=9.6.1 || ^>=9.8.1,
+    transformers ^>=0.5.6 || ^>=0.6.1,
 
   -- cabal-gild: discover source/ghc-9.4 source/ghc-9.6 source/library
   exposed-modules:
@@ -64,6 +65,7 @@ library
     Imp.Extra.HsModule
     Imp.Extra.HsParsedModule
     Imp.Extra.ImportDecl
+    Imp.Extra.Located
     Imp.Extra.ModuleName
     Imp.Extra.ParsedResult
     Imp.Extra.ReadP
@@ -73,6 +75,8 @@ library
     Imp.Type.Config
     Imp.Type.Context
     Imp.Type.Flag
+    Imp.Type.Source
+    Imp.Type.Target
 
   hs-source-dirs: source/library
   other-modules: Paths_imp

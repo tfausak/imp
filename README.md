@@ -75,6 +75,30 @@ main = IO.print ()
 
 Later aliases will override earlier ones.
 
+## Aliasing Current Module
+
+You can use the special source module name `_` (a single underscore) to refer
+to the current module. This allows you to disambiguate identifiers without
+referring to the current module name. For example if you want to use `This`,
+you can do so with `--alias=_:This`. As a complete example, this input:
+
+``` hs
+{-# OPTIONS_GHC
+  -fplugin=Imp
+  -fplugin-opt=Imp:--alias=_:This #-}
+module Qualified.Example where
+print = putStrLn . show
+defaultMain = This.print ()
+```
+
+Will effectively produce this output:
+
+``` hs
+module Qualified.Example where
+print = putStrLn . show
+defaultMain = Qualified.Example.print ()
+```
+
 ## Recommended Usage
 
 Combining the previous sections, the recommended usage of Imp is to enable it
@@ -86,6 +110,7 @@ library
   build-depends: imp ^>= 1.0.0.0
   ghc-options:
     -fplugin=Imp
+    -fplugin-opt=Imp:--alias=_:This
     -fplugin-opt=Imp:--alias=Data.Map.Strict:Map
     -fplugin-opt=Imp:--alias=Data.Sequence:Seq
     -fplugin-opt=Imp:--alias=Data.Set:Set
