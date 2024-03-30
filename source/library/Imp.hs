@@ -5,6 +5,7 @@ module Imp where
 import qualified Control.Monad.Catch as Exception
 import qualified Data.Data as Data
 import qualified Data.Map as Map
+import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified GHC.Hs as Hs
 import qualified GHC.Plugins as Plugin
@@ -15,6 +16,7 @@ import qualified Imp.Extra.HsModule as HsModule
 import qualified Imp.Extra.HsParsedModule as HsParsedModule
 import qualified Imp.Extra.ImportDecl as ImportDecl
 import qualified Imp.Extra.ParsedResult as ParsedResult
+import qualified Imp.Extra.SrcSpanAnnN as SrcSpanAnnN
 import qualified Imp.Ghc as Ghc
 import qualified Imp.Type.Config as Config
 import qualified Imp.Type.Context as Context
@@ -61,7 +63,12 @@ imp arguments lHsModule = do
   context <- Context.fromConfig config
   let aliases = Context.aliases context
       moduleNames =
-        Set.fromList @Plugin.ModuleName
+        Map.fromListWith SrcSpanAnnN.leftmostSmallest
+          . Maybe.mapMaybe
+            ( \lRdrName -> case Plugin.unLoc lRdrName of
+                Plugin.Qual moduleName _ -> Just (moduleName, Plugin.getLoc lRdrName)
+                _ -> Nothing
+            )
           . biplate
           . Hs.hsmodDecls
           $ Plugin.unLoc lHsModule
@@ -72,13 +79,13 @@ biplate = concat . Data.gmapQ (\d -> maybe (biplate d) pure $ Data.cast d)
 
 updateImports ::
   Map.Map Plugin.ModuleName Plugin.ModuleName ->
-  Set.Set Plugin.ModuleName ->
+  Map.Map Plugin.ModuleName Hs.SrcSpanAnnN ->
   [Hs.LImportDecl Hs.GhcPs] ->
   [Hs.LImportDecl Hs.GhcPs]
 updateImports aliases want imports =
   let have = Set.fromList $ fmap (ImportDecl.toModuleName . Plugin.unLoc) imports
-      need = Set.toList $ Set.difference want have
-   in imports <> fmap (Hs.noLocA . createImport aliases) need
+      need = Map.toList $ Map.withoutKeys want have
+   in imports <> fmap (\(m, l) -> Plugin.L (Hs.na2la l) $ createImport aliases m) need
 
 createImport ::
   Map.Map Plugin.ModuleName Plugin.ModuleName ->

@@ -67,6 +67,7 @@ library
     Imp.Extra.ModuleName
     Imp.Extra.ParsedResult
     Imp.Extra.ReadP
+    Imp.Extra.SrcSpanAnnN
     Imp.Ghc
     Imp.Type.Alias
     Imp.Type.Config
