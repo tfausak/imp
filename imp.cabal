@@ -73,6 +73,7 @@ library
     Imp.Type.Config
     Imp.Type.Context
     Imp.Type.Flag
+    Imp.Type.Source
     Imp.Type.Target
 
   hs-source-dirs: source/library
