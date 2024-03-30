@@ -69,7 +69,7 @@
           }
         },
         {
-          "run": "cabal test"
+          "run": "cabal run -- imp-test-suite --randomize --strict"
         }
       ],
       "strategy": {
