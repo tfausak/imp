@@ -21,6 +21,7 @@ import qualified Imp.Ghc as Ghc
 import qualified Imp.Type.Config as Config
 import qualified Imp.Type.Context as Context
 import qualified Imp.Type.Flag as Flag
+import qualified Imp.Type.Target as Target
 import qualified System.Exit as Exit
 import qualified System.IO as IO
 
@@ -78,7 +79,7 @@ biplate :: (Data.Data a, Data.Data b) => a -> [b]
 biplate = concat . Data.gmapQ (\d -> maybe (biplate d) pure $ Data.cast d)
 
 updateImports ::
-  Map.Map Plugin.ModuleName Plugin.ModuleName ->
+  Map.Map Target.Target Plugin.ModuleName ->
   Map.Map Plugin.ModuleName Hs.SrcSpanAnnN ->
   [Hs.LImportDecl Hs.GhcPs] ->
   [Hs.LImportDecl Hs.GhcPs]
@@ -88,11 +89,11 @@ updateImports aliases want imports =
    in imports <> fmap (\(m, l) -> Plugin.L (Hs.na2la l) $ createImport aliases m) need
 
 createImport ::
-  Map.Map Plugin.ModuleName Plugin.ModuleName ->
+  Map.Map Target.Target Plugin.ModuleName ->
   Plugin.ModuleName ->
   Hs.ImportDecl Hs.GhcPs
 createImport aliases target =
-  let source = Map.findWithDefault target target aliases
+  let source = Map.findWithDefault target (Target.fromModuleName target) aliases
    in (Ghc.newImportDecl source)
         { Hs.ideclAs =
             if source == target

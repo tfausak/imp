@@ -8,9 +8,10 @@ import qualified Imp.Exception.ShowHelp as ShowHelp
 import qualified Imp.Exception.ShowVersion as ShowVersion
 import qualified Imp.Type.Alias as Alias
 import qualified Imp.Type.Config as Config
+import qualified Imp.Type.Target as Target
 
 newtype Context = Context
-  { aliases :: Map.Map Plugin.ModuleName Plugin.ModuleName
+  { aliases :: Map.Map Target.Target Plugin.ModuleName
   }
   deriving (Eq, Show)
 
