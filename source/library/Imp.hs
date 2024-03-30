@@ -87,19 +87,23 @@ updateImports ::
 updateImports aliases want imports =
   let have = Set.fromList $ fmap (ImportDecl.toModuleName . Plugin.unLoc) imports
       need = Map.toList $ Map.withoutKeys want have
-   in imports <> fmap (\(m, l) -> Plugin.L (Hs.na2la l) $ createImport aliases m) need
+   in imports <> Maybe.mapMaybe (\(m, l) -> Plugin.L (Hs.na2la l) <$> createImport aliases m) need
 
 createImport ::
   Map.Map Target.Target Source.Source ->
   Plugin.ModuleName ->
-  Hs.ImportDecl Hs.GhcPs
-createImport aliases target =
-  let source =
-        maybe target Source.toModuleName $
-          Map.lookup (Target.fromModuleName target) aliases
-   in (Ghc.newImportDecl source)
-        { Hs.ideclAs =
-            if source == target
-              then Nothing
-              else Just $ Hs.noLocA target
-        }
+  Maybe (Hs.ImportDecl Hs.GhcPs)
+createImport aliases target = do
+  source <-
+    case Map.lookup (Target.fromModuleName target) aliases of
+      Nothing -> Just target
+      Just s -> case s of
+        Source.Implicit -> Nothing
+        Source.Explicit m -> Just m
+  Just
+    (Ghc.newImportDecl source)
+      { Hs.ideclAs =
+          if source == target
+            then Nothing
+            else Just $ Hs.noLocA target
+      }
