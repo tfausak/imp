@@ -95,7 +95,7 @@ library
 ## Limitations
 
 Due to limitations in how GHC plugins work, Imp cannot be used to automatically
-import module from the same compilation unit. In typical usage this means that
+import modules from the same compilation unit. In typical usage this means that
 you cannot import modules from the same package. For example, this will not
 work:
 
