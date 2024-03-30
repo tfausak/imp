@@ -2,17 +2,14 @@
 
 import qualified Control.Monad.Catch as Exception
 import qualified GHC.Data.EnumSet as EnumSet
-import qualified GHC.Data.FastString as FastString
 import qualified GHC.Data.StringBuffer as StringBuffer
 import qualified GHC.Parser as Parser
 import qualified GHC.Parser.Lexer as Lexer
+import qualified GHC.Plugins as Plugin
 import qualified GHC.Stack as Stack
-import qualified GHC.Types.SrcLoc as SrcLoc
 import qualified GHC.Utils.Error as Error
-import qualified GHC.Utils.Outputable as Outputable
 import qualified Imp
 import qualified Imp.Ghc as Ghc
-import qualified Language.Haskell.Syntax.Module.Name as ModuleName
 import qualified Test.Hspec as Hspec
 
 main :: IO ()
@@ -104,15 +101,15 @@ main = Hspec.hspec . Hspec.parallel . Hspec.describe "Imp" $ do
 expectImp :: (Stack.HasCallStack) => [String] -> String -> String -> Hspec.Expectation
 expectImp arguments input expected = do
   before <- parseModule input
-  after <- Imp.imp arguments (ModuleName.mkModuleName "Example") before
-  let actual = Outputable.showPprUnsafe after
+  after <- Imp.imp arguments (Plugin.mkModuleName "Example") before
+  let actual = Plugin.showPprUnsafe after
   actual `Hspec.shouldBe` expected
 
-parseModule :: (Exception.MonadThrow m) => String -> m (SrcLoc.Located Ghc.HsModulePs)
+parseModule :: (Exception.MonadThrow m) => String -> m (Plugin.Located Ghc.HsModulePs)
 parseModule input = do
   let parserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts [] False False False False
       stringBuffer = StringBuffer.stringToStringBuffer input
-      realSrcLoc = SrcLoc.mkRealSrcLoc (FastString.mkFastString "<interactive>") 1 1
+      realSrcLoc = Plugin.mkRealSrcLoc (Plugin.mkFastString "<interactive>") 1 1
       pState = Lexer.initParserState parserOpts stringBuffer realSrcLoc
       parseResult = Lexer.unP Parser.parseModule pState
   case parseResult of
@@ -123,7 +120,7 @@ emptyDiagOpts :: Error.DiagOpts
 #if MIN_VERSION_ghc(9, 8, 1)
 emptyDiagOpts = Error.emptyDiagOpts
 #else
-emptyDiagOpts = Error.DiagOpts EnumSet.empty EnumSet.empty False False Nothing Outputable.defaultSDocContext
+emptyDiagOpts = Error.DiagOpts EnumSet.empty EnumSet.empty False False Nothing Plugin.defaultSDocContext
 #endif
 
 newtype InvalidInput
