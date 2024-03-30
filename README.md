@@ -92,6 +92,40 @@ library
     -- and so on ...
 ```
 
+## Limitations
+
+Due to limitations in how GHC plugins work, Imp cannot be used to automatically
+import module from the same compilation unit. In typical usage this means that
+you cannot import modules from the same package. For example, this will not
+work:
+
+``` hs
+-- A.hs
+module A where
+aThing = ()
+
+-- B.hs
+{-# OPTIONS_GHC -fplugin=Imp #-}
+module B where
+bThing = A.aThing
+```
+
+If you attempt to compile those modules in a single package, you'll get an
+error like this:
+
+```
+B.hs:1:1: error: [GHC-58427]
+    attempting to use module ‘example-0:A’ (A.hs) which is not loaded
+  |
+1 | module B where
+  | ^
+```
+
+The only workarounds are to either import the module manually or move the
+modules into separate packages. See [issue 11][] for details.
+
+[issue 11]: https://github.com/tfausak/imp/issues/11
+
 ## Notes
 
 Imp operates purely syntactically. It doesn't know anything about the
