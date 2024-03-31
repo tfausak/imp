@@ -162,11 +162,11 @@ If you attempt to compile those modules in a single package, you'll get an
 error like this:
 
 ```
-B.hs:1:1: error: [GHC-58427]
+B.hs:3:10: error: [GHC-58427]
     attempting to use module ‘example-0:A’ (A.hs) which is not loaded
   |
-1 | module B where
-  | ^
+3 | bThing = A.aThing
+  |          ^^^^^^^^
 ```
 
 The only workarounds are to either import the module manually or move the
