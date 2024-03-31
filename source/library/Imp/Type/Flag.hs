@@ -46,7 +46,9 @@ options =
       []
       ["package"]
       (GetOpt.ReqArg Package "MODULE:PACKAGE")
-      "TODO"
+      "Specifies that MODULE should be imported from PACKAGE. \
+      \For example `--package=Data.Semver:semver` will import the `Data.SemVer` module from the `semver` package. \
+      \Later packages will overwrite earlier ones."
   ]
 
 fromArguments :: (Exception.MonadThrow m) => [String] -> m [Flag]

@@ -13,7 +13,6 @@ import qualified Data.Set as Set
 import qualified GHC.Hs as Hs
 import qualified GHC.Plugins as Plugin
 import qualified GHC.Types.PkgQual as PkgQual
-import qualified GHC.Types.SourceText as SourceText
 import qualified Imp.Exception.ShowHelp as ShowHelp
 import qualified Imp.Exception.ShowVersion as ShowVersion
 import qualified Imp.Extra.Exception as Exception
@@ -153,12 +152,6 @@ createImport aliases packages target = do
             then Nothing
             else Just $ Hs.noLocA target,
         Hs.ideclPkgQual =
-          case Map.lookup (Target.fromModuleName target) packages of
-            Nothing -> PkgQual.NoRawPkgQual
-            Just packageName ->
-              PkgQual.RawPkgQual
-                . (\x -> SourceText.StringLiteral SourceText.NoSourceText (Plugin.mkFastString x) Nothing)
-                . Plugin.unpackFS
-                . (\(Plugin.PackageName x) -> x)
-                $ PackageName.toPackageName packageName
+          maybe PkgQual.NoRawPkgQual (PkgQual.RawPkgQual . PackageName.toStringLiteral) $
+            Map.lookup (Target.fromModuleName target) packages
       }
