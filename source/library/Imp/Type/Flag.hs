@@ -9,6 +9,7 @@ import qualified System.Console.GetOpt as GetOpt
 data Flag
   = Alias String
   | Help Bool
+  | Package String
   | Version Bool
   deriving (Eq, Show)
 
@@ -40,7 +41,15 @@ options =
       (GetOpt.ReqArg Alias "SOURCE:TARGET")
       "Adds a new alias, allowing TARGET to be used in place of SOURCE. \
       \For example `--alias=Data.String:String` allows `String.words` to mean `Data.String.words`. \
-      \Later aliases will overwrite earlier ones."
+      \Later aliases will overwrite earlier ones.",
+    GetOpt.Option
+      []
+      ["package"]
+      (GetOpt.ReqArg Package "MODULE:PACKAGE")
+      "Specifies that MODULE should be imported from PACKAGE. \
+      \For example `--package=Data.Semver:semver` will import the `Data.SemVer` module from the `semver` package. \
+      \Note that using this option requires you to enable the `PackageImports` language extension. \
+      \Later packages will overwrite earlier ones."
   ]
 
 fromArguments :: (Exception.MonadThrow m) => [String] -> m [Flag]

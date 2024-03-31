@@ -117,6 +117,29 @@ library
     -- and so on ...
 ```
 
+## Package Imports
+
+It's possible that the same module name can be defined in two different
+packages. In normal Haskell code, you can disambiguate using the
+`PackageImports` language extension. To do the same with Imp, use the
+`--package=MODULE:PACKAGE` option. For example, consider the following module:
+
+``` hs
+{-# LANGUAGE PackageImports #-}
+{-# OPTIONS_GHC
+  -fplugin=Imp
+  -fplugin-opt=Imp:--package=Data.SemVer:semver #-}
+main = print Data.SemVer.initial
+```
+
+That will produce the following output:
+
+``` hs
+{-# LANGUAGE PackageImports #-}
+import qualified "semver" Data.SemVer
+main = print Data.SemVer.initial
+```
+
 ## Limitations
 
 Due to limitations in how GHC plugins work, Imp cannot be used to automatically

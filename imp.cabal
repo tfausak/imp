@@ -46,6 +46,7 @@ library
   import: library
   autogen-modules: Paths_imp
   build-depends:
+    Cabal-syntax ^>=3.6.0.0 || ^>=3.8.1.0 || ^>=3.10.1.0,
     containers ^>=0.6.7,
     exceptions ^>=0.10.5,
     ghc ^>=9.4.1 || ^>=9.6.1 || ^>=9.8.1,
@@ -57,6 +58,8 @@ library
     Imp.Exception.InvalidAlias
     Imp.Exception.InvalidModuleName
     Imp.Exception.InvalidOption
+    Imp.Exception.InvalidPackage
+    Imp.Exception.InvalidPackageName
     Imp.Exception.ShowHelp
     Imp.Exception.ShowVersion
     Imp.Exception.UnexpectedArgument
@@ -75,6 +78,8 @@ library
     Imp.Type.Config
     Imp.Type.Context
     Imp.Type.Flag
+    Imp.Type.Package
+    Imp.Type.PackageName
     Imp.Type.Source
     Imp.Type.Target
 

@@ -12,6 +12,7 @@ import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified GHC.Hs as Hs
 import qualified GHC.Plugins as Plugin
+import qualified GHC.Types.PkgQual as PkgQual
 import qualified Imp.Exception.ShowHelp as ShowHelp
 import qualified Imp.Exception.ShowVersion as ShowVersion
 import qualified Imp.Extra.Exception as Exception
@@ -25,6 +26,7 @@ import qualified Imp.Ghc as Ghc
 import qualified Imp.Type.Config as Config
 import qualified Imp.Type.Context as Context
 import qualified Imp.Type.Flag as Flag
+import qualified Imp.Type.PackageName as PackageName
 import qualified Imp.Type.Source as Source
 import qualified Imp.Type.Target as Target
 import qualified System.Exit as Exit
@@ -73,6 +75,7 @@ imp arguments this lHsModule = do
   config <- Config.fromFlags flags
   context <- Context.fromConfig config
   let aliases = Context.aliases context
+      packages = Context.packages context
       implicits =
         Set.map Target.toModuleName
           . Map.keysSet
@@ -86,7 +89,7 @@ imp arguments this lHsModule = do
         StateT.runState
           (Located.overValue (HsModule.overDecls $ overData $ updateQualifiedIdentifiers this implicits imports) lHsModule)
           Map.empty
-  pure $ fmap (HsModule.overImports $ updateImports this aliases moduleNames) newLHsModule
+  pure $ fmap (HsModule.overImports $ updateImports this aliases packages moduleNames) newLHsModule
 
 updateQualifiedIdentifiers ::
   (Data.Data a) =>
@@ -121,19 +124,21 @@ overData f = Data.gmapM $ overData f Monad.>=> f
 updateImports ::
   Plugin.ModuleName ->
   Map.Map Target.Target Source.Source ->
+  Map.Map Target.Target PackageName.PackageName ->
   Map.Map Plugin.ModuleName Hs.SrcSpanAnnN ->
   [Hs.LImportDecl Hs.GhcPs] ->
   [Hs.LImportDecl Hs.GhcPs]
-updateImports this aliases want imports =
+updateImports this aliases packages want imports =
   let have = Set.insert this . Set.fromList $ fmap (ImportDecl.toModuleName . Plugin.unLoc) imports
       need = Map.toList $ Map.withoutKeys want have
-   in imports <> Maybe.mapMaybe (\(m, l) -> Plugin.L (Hs.na2la l) <$> createImport aliases m) need
+   in imports <> Maybe.mapMaybe (\(m, l) -> Plugin.L (Hs.na2la l) <$> createImport aliases packages m) need
 
 createImport ::
   Map.Map Target.Target Source.Source ->
+  Map.Map Target.Target PackageName.PackageName ->
   Plugin.ModuleName ->
   Maybe (Hs.ImportDecl Hs.GhcPs)
-createImport aliases target = do
+createImport aliases packages target = do
   source <-
     case Map.lookup (Target.fromModuleName target) aliases of
       Nothing -> Just target
@@ -145,5 +150,8 @@ createImport aliases target = do
       { Hs.ideclAs =
           if source == target
             then Nothing
-            else Just $ Hs.noLocA target
+            else Just $ Hs.noLocA target,
+        Hs.ideclPkgQual =
+          maybe PkgQual.NoRawPkgQual (PkgQual.RawPkgQual . PackageName.toStringLiteral) $
+            Map.lookup (Target.fromModuleName target) packages
       }
