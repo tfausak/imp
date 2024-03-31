@@ -4,6 +4,7 @@ import qualified Control.Monad as Monad
 import qualified Control.Monad.Catch as Exception
 import qualified Imp.Type.Alias as Alias
 import qualified Imp.Type.Flag as Flag
+import qualified Imp.Type.Group as Group
 import qualified Imp.Type.Package as Package
 
 data Config = Config
@@ -31,6 +32,9 @@ applyFlag config flag = case flag of
   Flag.Alias string -> do
     alias <- Alias.fromString string
     pure config {aliases = alias : aliases config}
+  Flag.Group string -> do
+    group <- Group.fromString string
+    pure config {aliases = Group.toAliases group <> aliases config}
   Flag.Help bool -> pure config {help = bool}
   Flag.Package string -> do
     package <- Package.fromString string

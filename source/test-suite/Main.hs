@@ -116,6 +116,12 @@ main = Hspec.hspec . Hspec.parallel . Hspec.describe "Imp" $ do
       "version = Data.SemVer.initial"
       "import (implicit) qualified \"semver\" Data.SemVer\nversion = Data.SemVer.initial"
 
+  Hspec.it "supports groups of aliases" $ do
+    expectImp
+      ["--group=base"]
+      "main = Applicative.pure ()"
+      "import (implicit) qualified Control.Applicative as Applicative\nmain = Applicative.pure ()"
+
 expectImp :: (Stack.HasCallStack) => [String] -> String -> String -> Hspec.Expectation
 expectImp arguments input expected = do
   before <- parseModule input

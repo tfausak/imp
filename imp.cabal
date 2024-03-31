@@ -63,7 +63,9 @@ library
     Imp.Exception.ShowHelp
     Imp.Exception.ShowVersion
     Imp.Exception.UnexpectedArgument
+    Imp.Exception.UnknownGroup
     Imp.Exception.UnknownOption
+    Imp.Extra.Either
     Imp.Extra.Exception
     Imp.Extra.HsModule
     Imp.Extra.HsParsedModule
@@ -78,6 +80,7 @@ library
     Imp.Type.Config
     Imp.Type.Context
     Imp.Type.Flag
+    Imp.Type.Group
     Imp.Type.Package
     Imp.Type.PackageName
     Imp.Type.Source

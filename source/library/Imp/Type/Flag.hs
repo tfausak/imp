@@ -8,6 +8,7 @@ import qualified System.Console.GetOpt as GetOpt
 
 data Flag
   = Alias String
+  | Group String
   | Help Bool
   | Package String
   | Version Bool
@@ -42,6 +43,12 @@ options =
       "Adds a new alias, allowing TARGET to be used in place of SOURCE. \
       \For example `--alias=Data.String:String` allows `String.words` to mean `Data.String.words`. \
       \Later aliases will overwrite earlier ones.",
+    GetOpt.Option
+      []
+      ["group"]
+      (GetOpt.ReqArg Group "GROUP")
+      -- TODO: Improve description.
+      "Enables a named group of aliases.",
     GetOpt.Option
       []
       ["package"]
