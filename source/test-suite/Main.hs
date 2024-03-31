@@ -98,6 +98,24 @@ main = Hspec.hspec . Hspec.parallel . Hspec.describe "Imp" $ do
       "undefined = Example.undefined"
       "undefined = Example.undefined"
 
+  Hspec.it "" $ do
+    expectImp
+      ["--package=Data.SemVer:semver"]
+      "version = Data.SemVer.initial"
+      "import (implicit) qualified \"semver\" Data.SemVer\nversion = Data.SemVer.initial"
+
+  Hspec.it "" $ do
+    expectImp
+      ["--alias=Data.SemVer:V1", "--alias=Data.SemVer:V2", "--package=V1:semver", "--package=V2:semver-range"]
+      "one = V1.initial\ntwo = V2.anyVersion"
+      "import (implicit) qualified \"semver\" Data.SemVer as V1\nimport (implicit) qualified \"semver-range\" Data.SemVer as V2\none = V1.initial\ntwo = V2.anyVersion"
+
+  Hspec.it "" $ do
+    expectImp
+      ["--package=Data.SemVer:semver-range", "--package=Data.SemVer:semver"]
+      "version = Data.SemVer.initial"
+      "import (implicit) qualified \"semver\" Data.SemVer\nversion = Data.SemVer.initial"
+
 expectImp :: (Stack.HasCallStack) => [String] -> String -> String -> Hspec.Expectation
 expectImp arguments input expected = do
   before <- parseModule input
