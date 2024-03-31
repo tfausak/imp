@@ -163,7 +163,7 @@ error like this:
 
 ```
 B.hs:3:10: error: [GHC-58427]
-    attempting to use module ‘example:A’ (A.hs) which is not loaded
+    attempting to use module ‘example-0:A’ (A.hs) which is not loaded
   |
 3 | bThing = A.aThing
   |          ^^^^^^^^
