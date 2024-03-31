@@ -48,6 +48,7 @@ options =
       (GetOpt.ReqArg Package "MODULE:PACKAGE")
       "Specifies that MODULE should be imported from PACKAGE. \
       \For example `--package=Data.Semver:semver` will import the `Data.SemVer` module from the `semver` package. \
+      \Note that using this option requires you to enable the `PackageImports` language extension. \
       \Later packages will overwrite earlier ones."
   ]
 
