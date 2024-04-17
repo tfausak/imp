@@ -7,6 +7,7 @@ import qualified Control.Monad as Monad
 import qualified Control.Monad.Catch as Exception
 import qualified Control.Monad.Trans.State as StateT
 import qualified Data.Data as Data
+import qualified Data.IORef as IORef
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
@@ -31,6 +32,7 @@ import qualified Imp.Type.Source as Source
 import qualified Imp.Type.Target as Target
 import qualified System.Exit as Exit
 import qualified System.IO as IO
+import qualified System.IO.Unsafe as Unsafe
 
 plugin :: Plugin.Plugin
 plugin =
@@ -65,15 +67,22 @@ exceptionToExitCode e
   | otherwise = Exit.ExitFailure 1
 
 imp ::
-  (Exception.MonadThrow m) =>
   [String] ->
   Plugin.ModuleName ->
   Plugin.Located Ghc.HsModulePs ->
-  m (Plugin.Located Ghc.HsModulePs)
+  IO (Plugin.Located Ghc.HsModulePs)
 imp arguments this lHsModule = do
-  flags <- Flag.fromArguments arguments
-  config <- Config.fromFlags flags
-  context <- Context.fromConfig config
+  result <- IORef.atomicModifyIORef cacheRef $ \cache ->
+    case Map.lookup arguments cache of
+      Just result -> (cache, result)
+      Nothing ->
+        let result :: Either Exception.SomeException Context.Context
+            result = do
+              flags <- Flag.fromArguments arguments
+              config <- Config.fromFlags flags
+              Context.fromConfig config
+         in (Map.insert arguments result cache, result)
+  context <- either Exception.throwM pure result
   let aliases = Context.aliases context
       packages = Context.packages context
       implicits =
@@ -90,6 +99,10 @@ imp arguments this lHsModule = do
           (Located.overValue (HsModule.overDecls $ overData $ updateQualifiedIdentifiers this implicits imports) lHsModule)
           Map.empty
   pure $ fmap (HsModule.overImports $ updateImports this aliases packages moduleNames) newLHsModule
+
+cacheRef :: IORef.IORef (Map.Map [String] (Either Exception.SomeException Context.Context))
+cacheRef = Unsafe.unsafePerformIO $ IORef.newIORef Map.empty
+{-# NOINLINE cacheRef #-}
 
 updateQualifiedIdentifiers ::
   (Data.Data a) =>
