@@ -12,9 +12,11 @@ modules.
 [1]: https://downloads.haskell.org/ghc/9.8.2/docs/users_guide/ghci.html#qualified-names
 
 This is similar to [qualified-imports-plugin][2], but it works differently
-behind the scenes and supports newer versions of GHC.
+behind the scenes and supports newer versions of GHC. It is also similar to the
+[implicit import proposal][3], but more limited in scope.
 
 [2]: https://github.com/utdemir/qualified-imports-plugin
+[3]: https://github.com/ghc-proposals/ghc-proposals/pull/500
 
 ## Basic Usage
 
