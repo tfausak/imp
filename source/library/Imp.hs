@@ -13,6 +13,7 @@ import qualified Data.Set as Set
 import qualified GHC.Hs as Hs
 import qualified GHC.Plugins as Plugin
 import qualified GHC.Types.PkgQual as PkgQual
+import qualified GHC.Types.SourceText as SourceText
 import qualified Imp.Exception.ShowHelp as ShowHelp
 import qualified Imp.Exception.ShowVersion as ShowVersion
 import qualified Imp.Extra.Exception as Exception
@@ -22,7 +23,6 @@ import qualified Imp.Extra.ImportDecl as ImportDecl
 import qualified Imp.Extra.Located as Located
 import qualified Imp.Extra.ParsedResult as ParsedResult
 import qualified Imp.Extra.SrcSpanAnnN as SrcSpanAnnN
-import qualified Imp.Ghc as Ghc
 import qualified Imp.Type.Config as Config
 import qualified Imp.Type.Context as Context
 import qualified Imp.Type.Flag as Flag
@@ -68,8 +68,8 @@ imp ::
   (Exception.MonadThrow m) =>
   [String] ->
   Plugin.ModuleName ->
-  Plugin.Located Ghc.HsModulePs ->
-  m (Plugin.Located Ghc.HsModulePs)
+  Plugin.Located (Hs.HsModule Hs.GhcPs) ->
+  m (Plugin.Located (Hs.HsModule Hs.GhcPs))
 imp arguments this lHsModule = do
   flags <- Flag.fromArguments arguments
   config <- Config.fromFlags flags
@@ -80,11 +80,13 @@ imp arguments this lHsModule = do
         Set.map Target.toModuleName
           . Map.keysSet
           $ Map.filter Source.isImplicit aliases
-      imports =
-        Set.fromList
-          . fmap (ImportDecl.toModuleName . Plugin.unLoc)
-          . Hs.hsmodImports
-          $ Plugin.unLoc lHsModule
+      -- I would prefer to use `hsmodImports`, but I get a spurious warning
+      -- with GHC 9.10.1.
+      -- <https://github.com/tfausak/imp/pull/24#issuecomment-2116480980>
+      imports = case Plugin.unLoc lHsModule of
+        Hs.HsModule _ _ _ lImportDecls _ ->
+          Set.fromList $
+            fmap (ImportDecl.toModuleName . Plugin.unLoc) lImportDecls
       (newLHsModule, moduleNames) =
         StateT.runState
           (Located.overValue (HsModule.overDecls $ overData $ updateQualifiedIdentifiers this implicits imports) lHsModule)
@@ -131,7 +133,7 @@ updateImports ::
 updateImports this aliases packages want imports =
   let have = Set.insert this . Set.fromList $ fmap (ImportDecl.toModuleName . Plugin.unLoc) imports
       need = Map.toList $ Map.withoutKeys want have
-   in imports <> Maybe.mapMaybe (\(m, l) -> Plugin.L (Hs.na2la l) <$> createImport aliases packages m) need
+   in imports <> Maybe.mapMaybe (\(m, l) -> Plugin.L (Hs.l2l l) <$> createImport aliases packages m) need
 
 createImport ::
   Map.Map Target.Target Source.Source ->
@@ -146,12 +148,23 @@ createImport aliases packages target = do
         Source.Implicit -> Nothing
         Source.Explicit m -> Just m
   Just
-    (Ghc.newImportDecl source)
-      { Hs.ideclAs =
+    Hs.ImportDecl
+      { Hs.ideclExt =
+          Hs.XImportDeclPass
+            { Hs.ideclAnn = Hs.noAnn,
+              Hs.ideclSourceText = SourceText.NoSourceText,
+              Hs.ideclImplicit = True
+            },
+        Hs.ideclName = Hs.noLocA source,
+        Hs.ideclPkgQual =
+          maybe PkgQual.NoRawPkgQual (PkgQual.RawPkgQual . PackageName.toStringLiteral) $
+            Map.lookup (Target.fromModuleName target) packages,
+        Hs.ideclSource = Hs.NotBoot,
+        Hs.ideclSafe = False,
+        Hs.ideclQualified = Hs.QualifiedPre,
+        Hs.ideclAs =
           if source == target
             then Nothing
             else Just $ Hs.noLocA target,
-        Hs.ideclPkgQual =
-          maybe PkgQual.NoRawPkgQual (PkgQual.RawPkgQual . PackageName.toStringLiteral) $
-            Map.lookup (Target.fromModuleName target) packages
+        Hs.ideclImportList = Nothing
       }

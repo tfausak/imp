@@ -3,13 +3,13 @@
 import qualified Control.Monad.Catch as Exception
 import qualified GHC.Data.EnumSet as EnumSet
 import qualified GHC.Data.StringBuffer as StringBuffer
+import qualified GHC.Hs as Hs
 import qualified GHC.Parser as Parser
 import qualified GHC.Parser.Lexer as Lexer
 import qualified GHC.Plugins as Plugin
 import qualified GHC.Stack as Stack
 import qualified GHC.Utils.Error as Error
 import qualified Imp
-import qualified Imp.Ghc as Ghc
 import qualified Test.Hspec as Hspec
 
 main :: IO ()
@@ -123,7 +123,7 @@ expectImp arguments input expected = do
   let actual = Plugin.showPprUnsafe after
   actual `Hspec.shouldBe` expected
 
-parseModule :: (Exception.MonadThrow m) => String -> m (Plugin.Located Ghc.HsModulePs)
+parseModule :: (Exception.MonadThrow m) => String -> m (Plugin.Located (Hs.HsModule Hs.GhcPs))
 parseModule input = do
   let parserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts [] False False False False
       stringBuffer = StringBuffer.stringToStringBuffer input
