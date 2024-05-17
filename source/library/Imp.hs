@@ -131,7 +131,7 @@ updateImports ::
 updateImports this aliases packages want imports =
   let have = Set.insert this . Set.fromList $ fmap (ImportDecl.toModuleName . Plugin.unLoc) imports
       need = Map.toList $ Map.withoutKeys want have
-   in imports <> Maybe.mapMaybe (\(m, l) -> Plugin.L (Hs.na2la l) <$> createImport aliases packages m) need
+   in imports <> Maybe.mapMaybe (\(m, l) -> Plugin.L (Hs.l2l l) <$> createImport aliases packages m) need
 
 createImport ::
   Map.Map Target.Target Source.Source ->
