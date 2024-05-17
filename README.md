@@ -1,15 +1,14 @@
 # Imp
 
-[![Workflow](https://github.com/tfausak/imp/actions/workflows/workflow.yaml/badge.svg)](https://github.com/tfausak/imp/actions/workflows/workflow.yaml)
+[![Workflow](https://github.com/tfausak/imp/actions/workflows/ci.yaml/badge.svg)](https://github.com/tfausak/imp/actions/workflows/ci.yaml)
 [![Hackage](https://badgen.net/hackage/v/imp)](https://hackage.haskell.org/package/imp)
-[![Stackage](https://www.stackage.org/package/imp/badge/nightly?label=stackage)](https://www.stackage.org/package/imp)
 
 Imp is a GHC plugin for automatically importing modules. This behavior is
 similar to the [`-fimplicit-import-qualified`][1] flag for GHCi. In short, Imp
 allows you to use fully-qualified identifiers without explicitly importing any
 modules.
 
-[1]: https://downloads.haskell.org/ghc/9.8.2/docs/users_guide/ghci.html#qualified-names
+[1]: https://downloads.haskell.org/ghc/9.10.1/docs/users_guide/ghci.html#qualified-names
 
 This is similar to [qualified-imports-plugin][2], but it works differently
 behind the scenes and supports newer versions of GHC. It is also similar to the
