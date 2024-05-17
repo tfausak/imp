@@ -1,7 +1,7 @@
 jobs:
   build:
-    name: GHC ${{ matrix.ghc }} on ${{ matrix.platform }} ${{ matrix.version }}
-    runs-on: ${{ matrix.platform }}-${{ matrix.version }}
+    name: GHC ${{ matrix.ghc }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - run: mkdir artifact
@@ -20,39 +20,33 @@ jobs:
       - run: cabal outdated --v2-freeze-file
       - uses: actions/cache@v4
         with:
-          key: ${{ matrix.platform }}-${{ matrix.version }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
+          key: ${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
           path: ${{ steps.haskell.outputs.cabal-store }}
-          restore-keys: ${{ matrix.platform }}-${{ matrix.version }}-${{ matrix.ghc }}-
+          restore-keys: ${{ matrix.os }}-${{ matrix.ghc }}-
       - run: cabal build --only-download
       - run: cabal build --only-dependencies
       - run: cabal build
       - run: tar --create --file artifact.tar --verbose artifact
       - uses: actions/upload-artifact@v4
         with:
-          name: imp-${{ github.sha }}-${{ matrix.platform }}-${{ matrix.version }}-${{ matrix.ghc }}
+          name: imp-${{ github.sha }}-${{ matrix.os }}-${{ matrix.ghc }}
           path: artifact.tar
       - run: cabal run -- imp-test-suite --randomize --strict
     strategy:
       matrix:
         include:
           - ghc: '9.10'
-            platform: macos
-            version: 13
+            os: macos-13
           - ghc: '9.10'
-            platform: macos
-            version: 14
+            os: macos-14
           - ghc: 9.6
-            platform: ubuntu
-            version: 22.04
+            os: ubuntu-22.04
           - ghc: 9.8
-            platform: ubuntu
-            version: 22.04
+            os: ubuntu-22.04
           - ghc: '9.10'
-            platform: ubuntu
-            version: 22.04
+            os: ubuntu-22.04
           - ghc: '9.10'
-            platform: windows
-            version: 2022
+            os: windows-2022
   cabal:
     name: Cabal
     runs-on: ubuntu-latest
