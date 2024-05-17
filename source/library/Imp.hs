@@ -80,11 +80,13 @@ imp arguments this lHsModule = do
         Set.map Target.toModuleName
           . Map.keysSet
           $ Map.filter Source.isImplicit aliases
-      imports =
-        Set.fromList
-          . fmap (ImportDecl.toModuleName . Plugin.unLoc)
-          . Hs.hsmodImports
-          $ Plugin.unLoc lHsModule
+      -- I would prefer to use `hsmodImports`, but I get a spurious warning
+      -- with GHC 9.10.1.
+      -- <https://github.com/tfausak/imp/pull/24#issuecomment-2116480980>
+      imports = case Plugin.unLoc lHsModule of
+        Hs.HsModule _ _ _ lImportDecls _ ->
+          Set.fromList $
+            fmap (ImportDecl.toModuleName . Plugin.unLoc) lImportDecls
       (newLHsModule, moduleNames) =
         StateT.runState
           (Located.overValue (HsModule.overDecls $ overData $ updateQualifiedIdentifiers this implicits imports) lHsModule)
@@ -166,13 +168,3 @@ createImport aliases packages target = do
             else Just $ Hs.noLocA target,
         Hs.ideclImportList = Nothing
       }
-
--- (Ghc.newImportDecl source)
---   { Hs.ideclAs =
---       if source == target
---         then Nothing
---         else Just $ Hs.noLocA target,
---     Hs.ideclPkgQual =
---       maybe PkgQual.NoRawPkgQual (PkgQual.RawPkgQual . PackageName.toStringLiteral) $
---         Map.lookup (Target.fromModuleName target) packages
---   }
