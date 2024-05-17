@@ -1,6 +1,6 @@
 # Imp
 
-[![Workflow](https://github.com/tfausak/imp/actions/workflows/ci.yaml/badge.svg)](https://github.com/tfausak/imp/actions/workflows/ci.yaml)
+[![CI](https://github.com/tfausak/imp/actions/workflows/ci.yml/badge.svg)](https://github.com/tfausak/imp/actions/workflows/ci.yml)
 [![Hackage](https://badgen.net/hackage/v/imp)](https://hackage.haskell.org/package/imp)
 
 Imp is a GHC plugin for automatically importing modules. This behavior is
