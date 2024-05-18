@@ -11,7 +11,7 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
       - run: ghc-pkg list
       - run: cabal sdist --output-dir artifact
-      - run: cabal configure --enable-tests --flags=pedantic --jobs --test-show-details=direct
+      - run: cabal configure --enable-tests --flags=pedantic --jobs
       - run: cat cabal.project.local
       - run: cp cabal.project.local artifact
       - run: cabal freeze
