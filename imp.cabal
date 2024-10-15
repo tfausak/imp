@@ -93,7 +93,7 @@ test-suite imp-test-suite
   build-depends:
     exceptions,
     ghc,
-    hspec ^>=2.11.8,
+    hspec,
 
   hs-source-dirs: source/test-suite
   main-is: Main.hs
