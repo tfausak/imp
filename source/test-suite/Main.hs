@@ -116,6 +116,12 @@ main = Hspec.hspec . Hspec.parallel . Hspec.describe "Imp" $ do
       "version = Data.SemVer.initial"
       "import (implicit) qualified \"semver\" Data.SemVer\nversion = Data.SemVer.initial"
 
+  Hspec.it "handles exports" $ do
+    expectImp
+      []
+      "module Example ( Data.Bool.Bool ) where"
+      "module Example (\n        Data.Bool.Bool\n    ) where\nimport (implicit) qualified Data.Bool"
+
 expectImp :: (Stack.HasCallStack) => [String] -> String -> String -> Hspec.Expectation
 expectImp arguments input expected = do
   before <- parseModule input

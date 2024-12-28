@@ -87,9 +87,14 @@ imp arguments this lHsModule = do
         Hs.HsModule _ _ _ lImportDecls _ ->
           Set.fromList $
             fmap (ImportDecl.toModuleName . Plugin.unLoc) lImportDecls
+      go ::
+        (Data.Data a) =>
+        a ->
+        StateT.State (Map.Map Plugin.ModuleName Hs.SrcSpanAnnN) a
+      go = overData $ updateQualifiedIdentifiers this implicits imports
       (newLHsModule, moduleNames) =
         StateT.runState
-          (Located.overValue (HsModule.overDecls $ overData $ updateQualifiedIdentifiers this implicits imports) lHsModule)
+          (Located.overValue (HsModule.overExports go Monad.>=> HsModule.overDecls go) lHsModule)
           Map.empty
   pure $ fmap (HsModule.overImports $ updateImports this aliases packages moduleNames) newLHsModule
 
