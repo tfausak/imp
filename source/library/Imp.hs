@@ -20,7 +20,6 @@ import qualified Imp.Extra.Exception as Exception
 import qualified Imp.Extra.HsModule as HsModule
 import qualified Imp.Extra.HsParsedModule as HsParsedModule
 import qualified Imp.Extra.ImportDecl as ImportDecl
-import qualified Imp.Extra.Located as Located
 import qualified Imp.Extra.ParsedResult as ParsedResult
 import qualified Imp.Extra.SrcSpanAnnN as SrcSpanAnnN
 import qualified Imp.Type.Config as Config
@@ -94,7 +93,7 @@ imp arguments this lHsModule = do
       go = overData $ updateQualifiedIdentifiers this implicits imports
       (newLHsModule, moduleNames) =
         StateT.runState
-          (Located.overValue (HsModule.overExports go Monad.>=> HsModule.overDecls go) lHsModule)
+          (go lHsModule)
           Map.empty
   pure $ fmap (HsModule.overImports $ updateImports this aliases packages moduleNames) newLHsModule
 

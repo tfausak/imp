@@ -2,20 +2,6 @@ module Imp.Extra.HsModule where
 
 import qualified GHC.Hs as Hs
 
-overDecls ::
-  (Functor f) =>
-  ([Hs.LHsDecl Hs.GhcPs] -> f [Hs.LHsDecl Hs.GhcPs]) ->
-  Hs.HsModule Hs.GhcPs ->
-  f (Hs.HsModule Hs.GhcPs)
-overDecls f x = (\y -> x {Hs.hsmodDecls = y}) <$> f (Hs.hsmodDecls x)
-
-overExports ::
-  (Functor f) =>
-  (Maybe (Hs.LocatedL [Hs.LIE Hs.GhcPs]) -> f (Maybe (Hs.LocatedL [Hs.LIE Hs.GhcPs]))) ->
-  Hs.HsModule Hs.GhcPs ->
-  f (Hs.HsModule Hs.GhcPs)
-overExports f x = (\y -> x {Hs.hsmodExports = y}) <$> f (Hs.hsmodExports x)
-
 overImports ::
   ([Hs.LImportDecl Hs.GhcPs] -> [Hs.LImportDecl Hs.GhcPs]) ->
   Hs.HsModule Hs.GhcPs ->
