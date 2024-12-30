@@ -68,7 +68,6 @@ library
     Imp.Extra.HsModule
     Imp.Extra.HsParsedModule
     Imp.Extra.ImportDecl
-    Imp.Extra.Located
     Imp.Extra.ModuleName
     Imp.Extra.ParsedResult
     Imp.Extra.ReadP
