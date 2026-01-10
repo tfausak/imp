@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -170,6 +171,8 @@ createImport aliases packages target = do
           if source == target
             then Nothing
             else Just $ Hs.noLocA target,
+#if MIN_VERSION_ghc(9,14,0)
         Hs.ideclLevelSpec = Hs.NotLevelled,
+#endif
         Hs.ideclImportList = Nothing
       }
