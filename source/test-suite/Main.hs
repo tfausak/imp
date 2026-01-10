@@ -131,7 +131,7 @@ expectImp arguments input expected = do
 
 parseModule :: (Exception.MonadThrow m) => String -> m (Plugin.Located (Hs.HsModule Hs.GhcPs))
 parseModule input = do
-  let parserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts [] False False False False
+  let parserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts False False False False
       stringBuffer = StringBuffer.stringToStringBuffer input
       realSrcLoc = Plugin.mkRealSrcLoc (Plugin.mkFastString "<interactive>") 1 1
       pState = Lexer.initParserState parserOpts stringBuffer realSrcLoc

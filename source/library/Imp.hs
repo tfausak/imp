@@ -170,5 +170,6 @@ createImport aliases packages target = do
           if source == target
             then Nothing
             else Just $ Hs.noLocA target,
+        Hs.ideclLevelSpec = Hs.NotLevelled,
         Hs.ideclImportList = Nothing
       }
