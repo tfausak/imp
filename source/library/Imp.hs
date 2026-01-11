@@ -153,26 +153,51 @@ createImport aliases packages target = do
         Source.Implicit -> Nothing
         Source.Explicit m -> Just m
   Just
-    Hs.ImportDecl
-      { Hs.ideclExt =
-          Hs.XImportDeclPass
-            { Hs.ideclAnn = Hs.noAnn,
-              Hs.ideclSourceText = SourceText.NoSourceText,
-              Hs.ideclImplicit = True
-            },
-        Hs.ideclName = Hs.noLocA source,
+    emptyImportDecl
+      { Hs.ideclName = Hs.noLocA source,
         Hs.ideclPkgQual =
           maybe PkgQual.NoRawPkgQual (PkgQual.RawPkgQual . PackageName.toStringLiteral) $
             Map.lookup (Target.fromModuleName target) packages,
-        Hs.ideclSource = Hs.NotBoot,
-        Hs.ideclSafe = False,
-        Hs.ideclQualified = Hs.QualifiedPre,
         Hs.ideclAs =
           if source == target
             then Nothing
-            else Just $ Hs.noLocA target,
-#if MIN_VERSION_ghc(9,14,0)
-        Hs.ideclLevelSpec = Hs.NotLevelled,
-#endif
-        Hs.ideclImportList = Nothing
+            else Just $ Hs.noLocA target
       }
+
+emptyImportDecl :: Hs.ImportDecl Hs.GhcPs
+#if MIN_VERSION_ghc(9, 14, 0)
+emptyImportDecl =
+  Hs.ImportDecl
+    { Hs.ideclExt =
+        Hs.XImportDeclPass
+          { Hs.ideclAnn = Hs.noAnn,
+            Hs.ideclSourceText = SourceText.NoSourceText,
+            Hs.ideclImplicit = True
+          },
+      Hs.ideclName = Hs.noLocA $ Plugin.mkModuleName "Imp.Unknown",
+      Hs.ideclPkgQual = PkgQual.NoRawPkgQual,
+      Hs.ideclSource = Hs.NotBoot,
+      Hs.ideclSafe = False,
+      Hs.ideclQualified = Hs.QualifiedPre,
+      Hs.ideclAs = Nothing,
+      Hs.ideclLevelSpec = Hs.NotLevelled,
+      Hs.ideclImportList = Nothing
+    }
+#else
+emptyImportDecl =
+  Hs.ImportDecl
+    { Hs.ideclExt =
+        Hs.XImportDeclPass
+          { Hs.ideclAnn = Hs.noAnn,
+            Hs.ideclSourceText = SourceText.NoSourceText,
+            Hs.ideclImplicit = True
+          },
+      Hs.ideclName = Hs.noLocA $ Plugin.mkModuleName "Imp.Unknown",
+      Hs.ideclPkgQual = PkgQual.NoRawPkgQual,
+      Hs.ideclSource = Hs.NotBoot,
+      Hs.ideclSafe = False,
+      Hs.ideclQualified = Hs.QualifiedPre,
+      Hs.ideclAs = Nothing,
+      Hs.ideclImportList = Nothing
+    }
+#endif
