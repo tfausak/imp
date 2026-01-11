@@ -131,14 +131,20 @@ expectImp arguments input expected = do
 
 parseModule :: (Exception.MonadThrow m) => String -> m (Plugin.Located (Hs.HsModule Hs.GhcPs))
 parseModule input = do
-  let parserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts [] False False False False
-      stringBuffer = StringBuffer.stringToStringBuffer input
+  let stringBuffer = StringBuffer.stringToStringBuffer input
       realSrcLoc = Plugin.mkRealSrcLoc (Plugin.mkFastString "<interactive>") 1 1
-      pState = Lexer.initParserState parserOpts stringBuffer realSrcLoc
+      pState = Lexer.initParserState emptyParserOpts stringBuffer realSrcLoc
       parseResult = Lexer.unP Parser.parseModule pState
   case parseResult of
     Lexer.PFailed _ -> Exception.throwM $ InvalidInput input
     Lexer.POk _ lHsModule -> pure lHsModule
+
+emptyParserOpts :: Lexer.ParserOpts
+#if MIN_VERSION_ghc(9, 14, 0)
+emptyParserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts False False False False
+#else
+emptyParserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts [] False False False False
+#endif
 
 emptyDiagOpts :: Error.DiagOpts
 #if MIN_VERSION_ghc(9, 8, 1)
