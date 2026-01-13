@@ -141,16 +141,9 @@ parseModule input = do
 
 emptyParserOpts :: Lexer.ParserOpts
 #if MIN_VERSION_ghc(9, 14, 0)
-emptyParserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts False False False False
+emptyParserOpts = Lexer.mkParserOpts EnumSet.empty Error.emptyDiagOpts False False False False
 #else
-emptyParserOpts = Lexer.mkParserOpts EnumSet.empty emptyDiagOpts [] False False False False
-#endif
-
-emptyDiagOpts :: Error.DiagOpts
-#if MIN_VERSION_ghc(9, 8, 1)
-emptyDiagOpts = Error.emptyDiagOpts
-#else
-emptyDiagOpts = Error.DiagOpts EnumSet.empty EnumSet.empty False False Nothing Plugin.defaultSDocContext
+emptyParserOpts = Lexer.mkParserOpts EnumSet.empty Error.emptyDiagOpts [] False False False False
 #endif
 
 newtype InvalidInput
