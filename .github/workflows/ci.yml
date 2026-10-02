@@ -33,7 +33,7 @@ jobs:
         with:
           name: imp-${{ github.sha }}-${{ matrix.os }}-${{ matrix.ghc }}
           path: artifact.tar
-      - run: cabal run -- imp-test-suite --randomize --strict
+      - run: cabal run imp-test-suite -- --randomize --strict
     strategy:
       matrix:
         include:
